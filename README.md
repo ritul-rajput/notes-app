@@ -60,39 +60,14 @@ Quick Notes App/
 - **Firebase Cloud Functions** - Serverless backend logic
 - **Google Cloud Vision API** - OCR text extraction
 
-### Local Storage
 - **SQLite** - Local database for offline functionality
 - **AsyncStorage** - App preferences and settings
 - **React Native Keychain** - Secure storage for sensitive data
 
 ### Development Tools
-- **ESLint + Prettier** - Code formatting and linting
-- **Jest + React Native Testing Library** - Unit and integration testing
-- **Detox** - End-to-end testing
-- **GitHub Actions** - CI/CD pipeline
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ and npm/yarn
-- React Native CLI
-- Xcode (for iOS development)
-- Android Studio (for Android development)
-- Firebase account and project setup
-
-### Development Setup (Coming Soon)
-```bash
-# Clone the repository
-git clone <repository-url>
-cd quick-notes-app
-
-# Install dependencies
-npm install
-
-# iOS setup
-cd ios && pod install && cd ..
-
-# Start Metro bundler
+- **ESLint** - Code linting and formatting
+- **TypeScript** - Type safety and code completion
+- **React Native Debugger** - Debugging and inspection tools
 npm start
 
 # Run on iOS
