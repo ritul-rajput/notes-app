@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes - Login Screen Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .app-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #007AFF;
+            margin-bottom: 8px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #8E8E93;
+            line-height: 28px;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            height: 50px;
+            padding: 0 16px;
+            font-size: 16px;
+            border: 1px solid #C6C6C8;
+            border-radius: 8px;
+            background-color: #F2F2F7;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #007AFF;
+        }
+
+        input.error {
+            border-color: #FF3B30;
+        }
+
+        .error-text {
+            font-size: 12px;
+            color: #FF3B30;
+            margin-top: 4px;
+            margin-left: 4px;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 16px;
+            top: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 16px;
+        }
+
+        .forgot-password a {
+            font-size: 14px;
+            font-weight: 500;
+            color: #007AFF;
+            text-decoration: none;
+        }
+
+        .btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            opacity: 0.8;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: #007AFF;
+            color: #FFFFFF;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #007AFF;
+            color: #007AFF;
+        }
+
+        .divider-container {
+            display: flex;
+            align-items: center;
+            margin: 32px 0;
+        }
+
+        .divider {
+            flex: 1;
+            height: 1px;
+            background-color: #C6C6C8;
+        }
+
+        .divider-text {
+            margin: 0 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #8E8E93;
+        }
+
+        .guest-section {
+            margin-bottom: 32px;
+        }
+
+        .guest-info-box {
+            padding: 16px;
+            background-color: #F2F2F7;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .guest-info-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .guest-info-text {
+            font-size: 14px;
+            color: #8E8E93;
+            line-height: 24px;
+        }
+
+        .guest-info-highlight {
+            color: #FF9500;
+            font-weight: 600;
+        }
+
+        .signup-section {
+            text-align: center;
+        }
+
+        .signup-text {
+            font-size: 16px;
+            color: #8E8E93;
+        }
+
+        .signup-link {
+            font-size: 16px;
+            font-weight: 600;
+            color: #007AFF;
+            text-decoration: none;
+        }
+
+        .success-message {
+            display: none;
+            padding: 16px;
+            background-color: #34C759;
+            color: white;
+            border-radius: 8px;
+            margin-top: 16px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #000000;
+                color: #FFFFFF;
+            }
+
+            .app-title {
+                color: #0A84FF;
+            }
+
+            .welcome-subtitle {
+                color: #8E8E93;
+            }
+
+            input {
+                background-color: #1C1C1E;
+                color: #FFFFFF;
+                border-color: #38383A;
+            }
+
+            .guest-info-box {
+                background-color: #1C1C1E;
+            }
+
+            .btn-primary {
+                background-color: #0A84FF;
+            }
+
+            .btn-outline {
+                border-color: #0A84FF;
+                color: #0A84FF;
+            }
+
+            .divider {
+                background-color: #38383A;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="app-title">📝 Quick Notes</div>
+            <h1 class="welcome-title">Welcome Back!</h1>
+            <p class="welcome-subtitle">Sign in to access your notes across all devices</p>
+        </div>
+
+        <!-- Sign In Form -->
+        <div class="form-section">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                >
+                <div class="error-text" id="email-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-container">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    >
+                    <span class="eye-icon" onclick="togglePassword()">👁️</span>
+                </div>
+                <div class="error-text" id="password-error"></div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#" onclick="alert('Forgot Password feature coming soon!'); return false;">
+                    Forgot Password?
+                </a>
+            </div>
+
+            <button class="btn btn-primary" id="signin-btn" onclick="handleSignIn()" disabled>
+                Sign In
+            </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider-container">
+            <div class="divider"></div>
+            <span class="divider-text">OR</span>
+            <div class="divider"></div>
+        </div>
+
+        <!-- Guest Mode Section -->
+        <div class="guest-section">
+            <div class="guest-info-box">
+                <div class="guest-info-title">⏰ Try Guest Mode</div>
+                <p class="guest-info-text">
+                    Use the app without an account. All notes in guest mode will be 
+                    <span class="guest-info-highlight">automatically deleted after 24 hours</span>.
+                </p>
+            </div>
+
+            <button class="btn btn-outline" onclick="handleGuestMode()">
+                Continue as Guest
+            </button>
+        </div>
+
+        <!-- Sign Up Link -->
+        <div class="signup-section">
+            <span class="signup-text">Don't have an account? </span>
+            <a href="#" class="signup-link" onclick="alert('Sign Up feature coming soon!'); return false;">
+                Sign Up
+            </a>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="success-message"></div>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        const signInBtn = document.getElementById('signin-btn');
+        const successMessage = document.getElementById('success-message');
+
+        // Validation functions
+        function validateEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        function updateValidation() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // Email validation
+            if (email && !validateEmail(email)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailInput.classList.add('error');
+            } else {
+                emailError.textContent = '';
+                emailInput.classList.remove('error');
+            }
+
+            // Password validation
+            if (password && !validatePassword(password)) {
+                passwordError.textContent = 'Password must be at least 6 characters';
+                passwordInput.classList.add('error');
+            } else {
+                passwordError.textContent = '';
+                passwordInput.classList.remove('error');
+            }
+
+            // Enable/disable sign in button
+            signInBtn.disabled = !(validateEmail(email) && validatePassword(password));
+        }
+
+        emailInput.addEventListener('input', updateValidation);
+        passwordInput.addEventListener('input', updateValidation);
+
+        function togglePassword() {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        function handleSignIn() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (email === 'test@example.com' && password === 'password123') {
+                showSuccess('✅ Sign in successful! Welcome back!');
+            } else {
+                showSuccess('❌ Invalid credentials. Try: test@example.com / password123');
+            }
+        }
+
+        function handleGuestMode() {
+            showSuccess('✅ Guest mode activated! Your notes will auto-delete in 24 hours.');
+        }
+
+        // Allow Enter key to submit
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !signInBtn.disabled) {
+                handleSignIn();
+            }
+        });
+    </script>
+</body>
+</html>

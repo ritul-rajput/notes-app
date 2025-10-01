@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Canvas - Write & Draw Together</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .device-frame {
+            max-width: 420px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+        }
+        
+        .screen {
+            background: #FFF;
+            border-radius: 32px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            max-height: 800px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #E5E5EA;
+            background: linear-gradient(to bottom, #FAFAFA, #FFF);
+        }
+        
+        .back-btn {
+            font-size: 24px;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: #F2F2F7;
+        }
+        
+        .title-input {
+            flex: 1;
+            border: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 8px 12px;
+            margin: 0 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .title-input:focus {
+            outline: none;
+            background: #F9F9F9;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .save-btn {
+            background: #007AFF;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .save-btn:hover {
+            background: #0051D5;
+            transform: translateY(-1px);
+        }
+        
+        .more-btn {
+            font-size: 24px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+        
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            overflow-y: auto;
+            background: #FFF;
+        }
+        
+        .canvas {
+            min-height: 100%;
+            padding: 20px;
+            position: relative;
+            cursor: crosshair;
+        }
+        
+        .canvas.text-mode {
+            cursor: text;
+        }
+        
+        .canvas-hint {
+            font-size: 12px;
+            color: #8E8E93;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        /* Content elements */
+        .content-item {
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .text-block {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #000;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .text-block:hover {
+            background: #F9F9F9;
+        }
+        
+        .drawing-block {
+            background: #F9F9F9;
+            border: 2px dashed #E5E5EA;
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8E8E93;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .drawing-block:hover {
+            border-color: #007AFF;
+            background: #F2F8FF;
+        }
+        
+        .placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8E8E93;
+        }
+        
+        .placeholder-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Floating Toolbar */
+        .floating-toolbar {
+            border-top: 1px solid #E5E5EA;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .tools-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tools-row::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tool-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: #F2F2F7;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 28px;
+        }
+        
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .tool-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,122,255,0.3);
+        }
+        
+        .tool-btn.active.text { background: rgba(0,122,255,0.15); }
+        .tool-btn.active.pen { background: rgba(0,0,0,0.1); }
+        .tool-btn.active.pencil { background: rgba(142,142,147,0.15); }
+        .tool-btn.active.highlighter { background: rgba(255,204,0,0.15); }
+        .tool-btn.active.eraser { background: rgba(255,59,48,0.15); }
+        .tool-btn.active.shape { background: rgba(88,86,214,0.15); }
+        .tool-btn.active.image { background: rgba(52,199,89,0.15); }
+        
+        .tool-label {
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .tool-btn.active .tool-label {
+            display: block;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 6px;
+            padding: 0 16px 12px 16px;
+        }
+        
+        .quick-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px;
+            background: #F9F9F9;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .quick-btn:hover {
+            background: #F2F2F7;
+            transform: translateY(-1px);
+        }
+        
+        .quick-btn.clear {
+            background: rgba(255,59,48,0.1);
+            color: #FF3B30;
+        }
+        
+        .color-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* Options Popup */
+        .options-popup {
+            position: absolute;
+            bottom: 150px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            z-index: 100;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .popup-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .color-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: #007AFF;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #007AFF;
+        }
+        
+        .stroke-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .stroke-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .stroke-option:hover {
+            background: #F9F9F9;
+        }
+        
+        .stroke-option.selected {
+            background: rgba(0,122,255,0.1);
+        }
+        
+        .stroke-preview {
+            width: 60px;
+            background: #000;
+            border-radius: 2px;
+        }
+        
+        /* Tool Info Banner */
+        .tool-info {
+            background: rgba(0,122,255,0.1);
+            padding: 8px 16px;
+            text-align: center;
+        }
+        
+        .tool-info-text {
+            font-size: 12px;
+            color: #007AFF;
+            font-weight: 600;
+        }
+        
+        /* Demo content */
+        .demo-content {
+            display: none;
+        }
+        
+        .demo-content.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="screen">
+            <!-- Header -->
+            <div class="header">
+                <div class="back-btn" onclick="showToast('← Back')">←</div>
+                <input type="text" class="title-input" placeholder="Note Title" value="Meeting Notes & Diagrams">
+                <div class="header-actions">
+                    <div class="more-btn">⋯</div>
+                    <button class="save-btn" onclick="saveNote()">Save</button>
+                </div>
+            </div>
+            
+            <!-- Unified Canvas -->
+            <div class="canvas-area">
+                <div class="canvas" id="canvas" onclick="handleCanvasClick(event)">
+                    <div class="canvas-hint">
+                        Tap anywhere to start typing or drawing...
+                    </div>
+                    
+                    <!-- Demo Content -->
+                    <div class="demo-content" id="demoContent">
+                        <div class="content-item">
+                            <div class="text-block">
+                                <strong>Product Strategy Meeting</strong><br>
+                                Discussed Q4 roadmap and feature prioritization
+                            </div>
+                        </div>
+                        
+                        <div class="content-item">
+                            <div class="drawing-block">
+                                🎨 [User Flow Diagram]<br>
+                                <small style="opacity: 0.6;">Tap to draw</small>
+                            </div>
+                        </div>
+                        
+                        <div class="content-item">
+                            <div class="text-block">
+                                Key decisions:<br>
+                                • Focus on mobile-first design<br>
+                                • Implement dark mode by Nov<br>
+                                • User testing next week
+                            </div>
+                        </div>
+                        
+                        <div class="content-item">
+                            <div class="drawing-block">
+                                ✏️ [Quick Sketch of Architecture]<br>
+                                <small style="opacity: 0.6;">Pencil drawing</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Placeholder -->
+                    <div class="placeholder" id="placeholder">
+                        <div class="placeholder-icon">✨</div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                            Write and Draw Together
+                        </div>
+                        <div style="font-size: 14px;">
+                            Switch between tools to mix text and drawings<br>in one seamless flow
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Floating Toolbar -->
+            <div class="floating-toolbar">
+                <!-- Tools Row -->
+                <div class="tools-row">
+                    <button class="tool-btn active text" data-tool="text" onclick="selectTool('text', this)">
+                        <span>📝</span>
+                        <span class="tool-label">Text</span>
+                    </button>
+                    <button class="tool-btn pen" data-tool="pen" onclick="selectTool('pen', this)">
+                        <span>🖊️</span>
+                        <span class="tool-label">Pen</span>
+                    </button>
+                    <button class="tool-btn pencil" data-tool="pencil" onclick="selectTool('pencil', this)">
+                        <span>✏️</span>
+                        <span class="tool-label">Pencil</span>
+                    </button>
+                    <button class="tool-btn highlighter" data-tool="highlighter" onclick="selectTool('highlighter', this)">
+                        <span>💡</span>
+                        <span class="tool-label">Highlighter</span>
+                    </button>
+                    <button class="tool-btn eraser" data-tool="eraser" onclick="selectTool('eraser', this)">
+                        <span>🧹</span>
+                        <span class="tool-label">Eraser</span>
+                    </button>
+                    <button class="tool-btn shape" data-tool="shape" onclick="selectTool('shape', this)">
+                        <span>⬜</span>
+                        <span class="tool-label">Shapes</span>
+                    </button>
+                    <button class="tool-btn image" data-tool="image" onclick="selectTool('image', this)">
+                        <span>📷</span>
+                        <span class="tool-label">Image</span>
+                    </button>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="toggleColorPicker()">
+                        <div class="color-preview" id="colorPreview" style="background: #000;"></div>
+                        <span style="font-size: 11px; font-weight: 600;">Color</span>
+                    </button>
+                    <button class="quick-btn" onclick="toggleStrokeOptions()">
+                        <span style="font-size: 16px;">━</span>
+                        <span style="font-size: 11px; font-weight: 600;" id="strokeWidth">2px</span>
+                    </button>
+                    <button class="quick-btn" onclick="undo()">
+                        <span style="font-size: 18px;">↶</span>
+                    </button>
+                    <button class="quick-btn" onclick="redo()">
+                        <span style="font-size: 18px;">↷</span>
+                    </button>
+                    <button class="quick-btn clear" onclick="clearCanvas()">
+                        <span>🗑️</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tool Info -->
+            <div class="tool-info">
+                <div class="tool-info-text" id="toolInfo">
+                    📝 Tap to type anywhere on the canvas
+                </div>
+            </div>
+            
+            <!-- Color Picker Popup -->
+            <div class="options-popup" id="colorPopup" style="display: none;">
+                <div class="popup-title">Choose Color</div>
+                <div class="color-grid">
+                    <div class="color-option selected" style="background: #000;" onclick="selectColor('#000', this)"></div>
+                    <div class="color-option" style="background: #FFF; border: 2px solid #E5E5EA;" onclick="selectColor('#FFF', this)"></div>
+                    <div class="color-option" style="background: #FF3B30;" onclick="selectColor('#FF3B30', this)"></div>
+                    <div class="color-option" style="background: #FF9500;" onclick="selectColor('#FF9500', this)"></div>
+                    <div class="color-option" style="background: #FFCC00;" onclick="selectColor('#FFCC00', this)"></div>
+                    <div class="color-option" style="background: #34C759;" onclick="selectColor('#34C759', this)"></div>
+                    <div class="color-option" style="background: #007AFF;" onclick="selectColor('#007AFF', this)"></div>
+                    <div class="color-option" style="background: #5856D6;" onclick="selectColor('#5856D6', this)"></div>
+                </div>
+            </div>
+            
+            <!-- Stroke Options Popup -->
+            <div class="options-popup" id="strokePopup" style="display: none;">
+                <div class="popup-title">Stroke Width</div>
+                <div class="stroke-options">
+                    <div class="stroke-option" onclick="selectStroke(1, 'Thin', this)">
+                        <div class="stroke-preview" style="height: 1px;"></div>
+                        <span>Thin</span>
+                    </div>
+                    <div class="stroke-option selected" onclick="selectStroke(2, 'Regular', this)">
+                        <div class="stroke-preview" style="height: 2px;"></div>
+                        <span>Regular</span>
+                    </div>
+                    <div class="stroke-option" onclick="selectStroke(4, 'Medium', this)">
+                        <div class="stroke-preview" style="height: 4px;"></div>
+                        <span>Medium</span>
+                    </div>
+                    <div class="stroke-option" onclick="selectStroke(8, 'Thick', this)">
+                        <div class="stroke-preview" style="height: 8px;"></div>
+                        <span>Thick</span>
+                    </div>
+                    <div class="stroke-option" onclick="selectStroke(16, 'Bold', this)">
+                        <div class="stroke-preview" style="height: 16px;"></div>
+                        <span>Bold</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTool = 'text';
+        let currentColor = '#000';
+        let currentStroke = 2;
+        let hasContent = false;
+        
+        const toolInfoMessages = {
+            text: '📝 Tap to type anywhere on the canvas',
+            pen: '🖊️ Draw smooth lines and curves',
+            pencil: '✏️ Sketch with natural pencil texture',
+            highlighter: '💡 Highlight text and drawings',
+            eraser: '🧹 Erase parts of your drawing',
+            shape: '⬜ Draw perfect geometric shapes',
+            image: '📷 Insert images from camera or gallery'
+        };
+        
+        function selectTool(tool, element) {
+            currentTool = tool;
+            
+            // Update active state
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Update tool info
+            document.getElementById('toolInfo').textContent = toolInfoMessages[tool];
+            
+            // Update canvas cursor
+            const canvas = document.getElementById('canvas');
+            canvas.className = 'canvas' + (tool === 'text' ? ' text-mode' : '');
+            
+            // Hide popups
+            hideAllPopups();
+        }
+        
+        function toggleColorPicker() {
+            const popup = document.getElementById('colorPopup');
+            const strokePopup = document.getElementById('strokePopup');
+            strokePopup.style.display = 'none';
+            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function toggleStrokeOptions() {
+            const popup = document.getElementById('strokePopup');
+            const colorPopup = document.getElementById('colorPopup');
+            colorPopup.style.display = 'none';
+            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function hideAllPopups() {
+            document.getElementById('colorPopup').style.display = 'none';
+            document.getElementById('strokePopup').style.display = 'none';
+        }
+        
+        function selectColor(color, element) {
+            currentColor = color;
+            document.getElementById('colorPreview').style.background = color;
+            
+            // Update selected state
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            setTimeout(hideAllPopups, 300);
+        }
+        
+        function selectStroke(size, label, element) {
+            currentStroke = size;
+            document.getElementById('strokeWidth').textContent = size + 'px';
+            
+            // Update selected state
+            document.querySelectorAll('.stroke-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            setTimeout(hideAllPopups, 300);
+        }
+        
+        function handleCanvasClick(event) {
+            if (!hasContent) {
+                showDemoContent();
+            }
+        }
+        
+        function showDemoContent() {
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('demoContent').classList.add('show');
+            hasContent = true;
+        }
+        
+        function clearCanvas() {
+            if (confirm('Clear all content?')) {
+                document.getElementById('demoContent').classList.remove('show');
+                document.getElementById('placeholder').style.display = 'block';
+                hasContent = false;
+                showToast('🗑️ Canvas cleared');
+            }
+        }
+        
+        function undo() {
+            showToast('↶ Undo');
+        }
+        
+        function redo() {
+            showToast('↷ Redo');
+        }
+        
+        function saveNote() {
+            showToast('✅ Note saved successfully!');
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #34C759;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideDown 0.3s;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+        
+        // Click outside to close popups
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.quick-btn') && !event.target.closest('.options-popup')) {
+                hideAllPopups();
+            }
+        });
+    </script>
+</body>
+</html>

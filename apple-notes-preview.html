@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Notes Style - Simple & Clean</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: #F2F2F7;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .device {
+            max-width: 420px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .screen {
+            background: #FFF;
+            border-radius: 32px;
+            overflow: hidden;
+            height: 85vh;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header - iOS style */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 0.5px solid #E5E5EA;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-btn {
+            color: #007AFF;
+            font-size: 17px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .more-btn {
+            color: #007AFF;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .title-input {
+            width: 100%;
+            border: none;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            padding: 0;
+            background: transparent;
+        }
+        
+        .title-input:focus {
+            outline: none;
+        }
+        
+        .date {
+            font-size: 13px;
+            color: #8E8E93;
+            margin-bottom: 20px;
+        }
+        
+        .body-input {
+            width: 100%;
+            border: none;
+            font-size: 17px;
+            line-height: 1.5;
+            min-height: 400px;
+            padding: 0;
+            resize: none;
+            background: transparent;
+            font-family: inherit;
+        }
+        
+        .body-input:focus {
+            outline: none;
+        }
+        
+        /* Drawing Block */
+        .drawing-block {
+            margin: 16px 0;
+            border: 1px solid #E5E5EA;
+            border-radius: 12px;
+            padding: 40px 20px;
+            background: #F9F9F9;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .drawing-block:hover {
+            background: #F2F2F7;
+            border-color: #007AFF;
+        }
+        
+        .drawing-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .drawing-text {
+            font-size: 15px;
+            color: #8E8E93;
+        }
+        
+        /* Toolbar - iOS style */
+        .toolbar {
+            border-top: 0.5px solid #E5E5EA;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 8px 0;
+        }
+        
+        .toolbar-scroll {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            padding: 0 16px;
+            scrollbar-width: none;
+        }
+        
+        .toolbar-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tool-btn {
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .tool-btn:hover {
+            background: #F2F2F7;
+        }
+        
+        .tool-btn:active {
+            background: #E5E5EA;
+        }
+        
+        .tool-btn.drawing {
+            background: #007AFF;
+            color: white;
+        }
+        
+        .tool-btn.drawing:hover {
+            background: #0051D5;
+        }
+        
+        .tool-text {
+            font-size: 18px;
+            color: #000;
+        }
+        
+        .divider {
+            width: 1px;
+            height: 24px;
+            background: #E5E5EA;
+            margin: 8px 8px;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .drawing-block.new {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="device">
+        <div class="screen">
+            <!-- Header -->
+            <div class="header">
+                <a class="back-btn" onclick="showToast('← Back to Notes')">← Notes</a>
+                <div class="more-btn" onclick="showToast('More options')">⋯</div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <input 
+                    type="text" 
+                    class="title-input" 
+                    placeholder="Title" 
+                    value="Meeting Notes"
+                    id="titleInput"
+                >
+                
+                <div class="date" id="dateText">
+                    December 15, 2024
+                </div>
+                
+                <textarea 
+                    class="body-input" 
+                    placeholder="Start typing..."
+                    id="bodyInput"
+                    onkeydown="handleKeyPress(event)"
+                >Product Strategy Discussion
+
+Talked about the new mobile app features. Team agreed on these priorities:
+
+• Dark mode support
+• Better search functionality  
+• Offline mode
+
+</textarea>
+                
+                <div id="drawingsContainer"></div>
+            </div>
+            
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-scroll">
+                    <button class="tool-btn" onclick="showToast('✓ Checklist')" title="Checklist">
+                        ✓
+                    </button>
+                    
+                    <button class="tool-btn" onclick="showToast('📷 Photo')" title="Photo">
+                        📷
+                    </button>
+                    
+                    <button class="tool-btn drawing" onclick="insertDrawing()" title="Drawing">
+                        ✏️
+                    </button>
+                    
+                    <div class="divider"></div>
+                    
+                    <button class="tool-btn" onclick="applyFormat('bold')" title="Bold">
+                        <span class="tool-text" style="font-weight: 700;">B</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="applyFormat('italic')" title="Italic">
+                        <span class="tool-text" style="font-style: italic;">I</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="applyFormat('underline')" title="Underline">
+                        <span class="tool-text" style="text-decoration: underline;">U</span>
+                    </button>
+                    
+                    <div class="divider"></div>
+                    
+                    <button class="tool-btn" onclick="showToast('Aa Text Style')" title="Text Style">
+                        Aa
+                    </button>
+                    
+                    <button class="tool-btn" onclick="insertBullet()" title="Bullet List">
+                        •
+                    </button>
+                    
+                    <button class="tool-btn" onclick="insertNumber()" title="Numbered List">
+                        <span class="tool-text">1.</span>
+                    </button>
+                    
+                    <div class="divider"></div>
+                    
+                    <button class="tool-btn" onclick="showToast('⤴️ Share')" title="Share">
+                        ⤴️
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // Set today's date
+        const today = new Date();
+        document.getElementById('dateText').textContent = today.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        
+        let drawingCount = 0;
+        
+        function insertDrawing() {
+            const bodyInput = document.getElementById('bodyInput');
+            const drawingsContainer = document.getElementById('drawingsContainer');
+            
+            // Create drawing block
+            const drawingDiv = document.createElement('div');
+            drawingDiv.className = 'drawing-block new';
+            drawingDiv.innerHTML = `
+                <div class="drawing-icon">✏️</div>
+                <div class="drawing-text">Tap to draw</div>
+            `;
+            
+            drawingDiv.onclick = function() {
+                showToast('✏️ Drawing canvas would open here');
+                this.innerHTML = `
+                    <div class="drawing-icon">🎨</div>
+                    <div class="drawing-text">Sample Drawing #${++drawingCount}</div>
+                `;
+            };
+            
+            // Insert after current text
+            drawingsContainer.appendChild(drawingDiv);
+            
+            // Add newlines in text
+            bodyInput.value += '\n\n';
+            bodyInput.focus();
+            
+            showToast('✏️ Drawing inserted');
+        }
+        
+        function applyFormat(format) {
+            const formats = {
+                bold: 'Bold',
+                italic: 'Italic',
+                underline: 'Underline'
+            };
+            showToast(`${formats[format]} applied`);
+        }
+        
+        function insertBullet() {
+            const bodyInput = document.getElementById('bodyInput');
+            const cursorPos = bodyInput.selectionStart;
+            const textBefore = bodyInput.value.substring(0, cursorPos);
+            const textAfter = bodyInput.value.substring(cursorPos);
+            
+            bodyInput.value = textBefore + '• ' + textAfter;
+            bodyInput.selectionStart = bodyInput.selectionEnd = cursorPos + 2;
+            bodyInput.focus();
+            
+            showToast('• Bullet added');
+        }
+        
+        function insertNumber() {
+            const bodyInput = document.getElementById('bodyInput');
+            const cursorPos = bodyInput.selectionStart;
+            const textBefore = bodyInput.value.substring(0, cursorPos);
+            const textAfter = bodyInput.value.substring(cursorPos);
+            
+            bodyInput.value = textBefore + '1. ' + textAfter;
+            bodyInput.selectionStart = bodyInput.selectionEnd = cursorPos + 3;
+            bodyInput.focus();
+            
+            showToast('1. Number added');
+        }
+        
+        function handleKeyPress(event) {
+            // Auto-continue bullet list on Enter
+            if (event.key === 'Enter') {
+                const textarea = event.target;
+                const cursorPos = textarea.selectionStart;
+                const textBefore = textarea.value.substring(0, cursorPos);
+                const lines = textBefore.split('\n');
+                const currentLine = lines[lines.length - 1];
+                
+                if (currentLine.trim().startsWith('•')) {
+                    event.preventDefault();
+                    const textAfter = textarea.value.substring(cursorPos);
+                    textarea.value = textBefore + '\n• ' + textAfter;
+                    textarea.selectionStart = textarea.selectionEnd = cursorPos + 3;
+                }
+            }
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        // Auto-resize textarea
+        const bodyInput = document.getElementById('bodyInput');
+        bodyInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    </script>
+</body>
+</html>

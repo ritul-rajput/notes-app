@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes - Full Flow Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #F2F2F7;
+        }
+
+        .app-container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #FFFFFF;
+            min-height: 90vh;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .screen {
+            display: none;
+            min-height: 90vh;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .info-banner button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        /* Login Screen Styles */
+        .login-container {
+            padding: 32px 24px;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .app-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #007AFF;
+            margin-bottom: 8px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #8E8E93;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            height: 50px;
+            padding: 0 16px;
+            font-size: 16px;
+            border: 1px solid #C6C6C8;
+            border-radius: 8px;
+            background-color: #F2F2F7;
+        }
+
+        .btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007AFF;
+            color: white;
+            margin-top: 8px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #007AFF;
+            color: #007AFF;
+        }
+
+        .guest-box {
+            background-color: #F2F2F7;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 24px 0 16px 0;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            color: #8E8E93;
+            font-weight: 500;
+        }
+
+        /* Home Screen Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #E5E5EA;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .guest-badge {
+            font-size: 12px;
+            color: #FF9500;
+            margin-top: 4px;
+        }
+
+        .header-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin: 16px;
+            padding: 8px 16px;
+            background-color: #F2F2F7;
+            border-radius: 8px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            height: 36px;
+            padding: 0;
+        }
+
+        .note-card {
+            background: white;
+            margin: 8px 16px;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .note-card strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .note-content {
+            font-size: 14px;
+            color: #8E8E93;
+        }
+
+        .fab {
+            position: fixed;
+            right: 32px;
+            bottom: 32px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: #007AFF;
+            color: white;
+            font-size: 32px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #34C759;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+            }
+            to {
+                transform: translate(-50%, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="info-banner" id="infoBanner">
+        📱 Current Screen: <span id="currentScreen">Login</span>
+        <div>
+            <button onclick="resetDemo()">Reset Demo</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Login Screen -->
+        <div class="screen active" id="loginScreen">
+            <div class="login-container">
+                <div class="welcome-section">
+                    <div class="app-title">📝 Quick Notes</div>
+                    <h1 class="welcome-title">Welcome Back!</h1>
+                    <p class="welcome-subtitle">Sign in to access your notes</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" value="test@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" value="password123">
+                </div>
+
+                <button class="btn btn-primary" onclick="handleSignIn()">Sign In</button>
+
+                <div class="divider">OR</div>
+
+                <div class="guest-box">
+                    <strong>⏰ Try Guest Mode</strong>
+                    <p style="font-size: 14px; color: #8E8E93; margin-top: 4px;">
+                        All notes will be <span style="color: #FF9500; font-weight: 600;">automatically deleted after 24 hours</span>
+                    </p>
+                </div>
+
+                <button class="btn btn-outline" onclick="handleGuestMode()">Continue as Guest</button>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div class="screen" id="homeScreen">
+            <div class="header">
+                <div>
+                    <div class="header-title">📝 Quick Notes</div>
+                    <div class="guest-badge" id="guestBadgeHome" style="display: none;">⏰ Guest Mode (24h limit)</div>
+                </div>
+                <div class="header-icon" onclick="handleSignOut()">🚪</div>
+            </div>
+
+            <div class="search-bar">
+                <span style="margin-right: 8px;">🔍</span>
+                <input type="text" placeholder="Search notes (including OCR text)...">
+            </div>
+
+            <div style="padding: 16px;">
+                <h3 style="margin-bottom: 12px;">Recent Notes</h3>
+
+                <div class="note-card">
+                    <strong>📝 Today's Thoughts</strong>
+                    <p class="note-content">Had a great day today. Need to remember...</p>
+                    <div style="font-size: 12px; color: #8E8E93; margin-top: 8px;">10m ago</div>
+                </div>
+
+                <div class="note-card">
+                    <strong>🎨 App Design Ideas</strong>
+                    <div style="background: #F2F2F7; padding: 16px; border-radius: 4px; text-align: center; margin: 8px 0;">
+                        ✏️ Drawing note
+                    </div>
+                    <div style="font-size: 12px; color: #8E8E93;">1h ago</div>
+                </div>
+
+                <div class="note-card">
+                    <strong>📝 Team Standup Notes</strong>
+                    <p class="note-content">Discussed project timeline...</p>
+                    <div style="font-size: 12px; color: #8E8E93; margin-top: 8px;">2d ago</div>
+                </div>
+            </div>
+
+            <button class="fab">+</button>
+        </div>
+    </div>
+
+    <div class="success-message" id="successMessage"></div>
+
+    <script>
+        let isGuest = false;
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            document.getElementById('currentScreen').textContent = 
+                screenId === 'loginScreen' ? 'Login' : 'Home';
+        }
+
+        function showMessage(message) {
+            const msg = document.getElementById('successMessage');
+            msg.textContent = message;
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 3000);
+        }
+
+        function handleSignIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (email === 'test@example.com' && password === 'password123') {
+                isGuest = false;
+                document.getElementById('guestBadgeHome').style.display = 'none';
+                showMessage('✅ Welcome back! Signed in successfully');
+                setTimeout(() => showScreen('homeScreen'), 500);
+            } else {
+                showMessage('❌ Invalid credentials. Try: test@example.com / password123');
+            }
+        }
+
+        function handleGuestMode() {
+            isGuest = true;
+            document.getElementById('guestBadgeHome').style.display = 'block';
+            showMessage('✅ Guest mode activated! Notes will auto-delete in 24h');
+            setTimeout(() => showScreen('homeScreen'), 500);
+        }
+
+        function handleSignOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                showMessage('👋 Signed out successfully');
+                setTimeout(() => {
+                    showScreen('loginScreen');
+                    isGuest = false;
+                }, 500);
+            }
+        }
+
+        function resetDemo() {
+            showScreen('loginScreen');
+            isGuest = false;
+            document.getElementById('email').value = 'test@example.com';
+            document.getElementById('password').value = 'password123';
+            showMessage('🔄 Demo reset complete');
+        }
+    </script>
+</body>
+</html>

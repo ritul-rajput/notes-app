@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Quick Notes",
+    "slug": "quick-notes-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.quicknotes.app"
+    },
+    "android": {
+      "package": "com.quicknotes.app"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes - Complete App Preview</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F2F2F7; }
+        
+        .app-container { max-width: 400px; margin: 20px auto; background: #FFF; min-height: 90vh; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .screen { display: none; min-height: 90vh; }
+        .screen.active { display: flex; flex-direction: column; }
+        
+        /* Info Banner */
+        .info-banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px; text-align: center; font-weight: 600; }
+        .info-banner button { background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; margin: 4px; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #E5E5EA; }
+        .header-title { font-size: 20px; font-weight: 700; }
+        .header-icon { font-size: 24px; cursor: pointer; }
+        
+        /* Editor Header */
+        .editor-header { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #E5E5EA; }
+        .back-btn { font-size: 24px; cursor: pointer; margin-right: 12px; }
+        .title-input { flex: 1; border: none; font-size: 18px; font-weight: 600; padding: 8px; }
+        .save-btn { color: #007AFF; font-weight: 600; cursor: pointer; }
+        
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 1px solid #E5E5EA; }
+        .tab { flex: 1; padding: 16px; text-align: center; cursor: pointer; border-bottom: 2px solid transparent; color: #8E8E93; font-weight: 500; }
+        .tab.active { color: #007AFF; border-bottom-color: #007AFF; }
+        
+        /* Text Editor */
+        .text-editor { flex: 1; padding: 20px; }
+        .text-editor textarea { width: 100%; height: 100%; border: none; font-size: 16px; resize: none; font-family: inherit; }
+        
+        /* Drawing Area */
+        .drawing-area { flex: 1; display: flex; flex-direction: column; }
+        .canvas-container { flex: 1; margin: 16px; background: #FFF; border: 2px dashed #E5E5EA; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .canvas-placeholder { font-size: 48px; margin-bottom: 8px; }
+        .canvas-text { color: #8E8E93; font-size: 14px; }
+        
+        /* Drawing Tools */
+        .tools-bar { padding: 16px; border-top: 1px solid #E5E5EA; background: #F9F9F9; }
+        .tools-section { display: flex; align-items: center; margin-bottom: 12px; }
+        .tools-label { font-size: 14px; font-weight: 500; margin-right: 12px; width: 50px; }
+        .tool-btn { width: 40px; height: 40px; border: none; background: #E5E5EA; border-radius: 6px; margin-right: 8px; cursor: pointer; font-size: 20px; }
+        .tool-btn.active { background: #007AFF; }
+        .color-btn { width: 32px; height: 32px; border-radius: 16px; margin-right: 8px; cursor: pointer; border: 2px solid transparent; }
+        .color-btn.active { border-color: #007AFF; border-width: 3px; }
+        .clear-btn { width: 100%; padding: 12px; background: #FF3B30; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 12px; }
+        
+        /* FAB */
+        .fab { position: fixed; right: 32px; bottom: 32px; width: 60px; height: 60px; border-radius: 30px; background: #007AFF; color: white; font-size: 32px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; width: 85%; max-width: 400px; padding: 24px; max-height: 80vh; overflow-y: auto; }
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center; }
+        .modal-option { display: flex; align-items: center; padding: 16px; background: #F9F9F9; border-radius: 8px; margin-bottom: 12px; cursor: pointer; }
+        .modal-option:hover { background: #F2F2F7; }
+        .modal-icon { width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; }
+        .modal-text { flex: 1; }
+        .modal-text h4 { font-size: 16px; margin-bottom: 4px; }
+        .modal-text p { font-size: 14px; color: #8E8E93; }
+        .cancel-btn { width: 100%; padding: 12px; border: 1px solid #E5E5EA; background: white; border-radius: 8px; margin-top: 12px; font-weight: 600; cursor: pointer; }
+        
+        .success-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #34C759; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000; display: none; animation: slideDown 0.3s; }
+        .success-msg.show { display: block; }
+        @keyframes slideDown { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, 0); } }
+        
+        .note-card { background: white; margin: 8px 16px; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .note-card strong { display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="info-banner">
+        📱 Current: <span id="currentScreen">Home</span> | 
+        <button onclick="showScreen('homeScreen')">Home</button>
+        <button onclick="showCreateModal()">Create</button>
+        <button onclick="showScreen('editorScreen')">Editor</button>
+    </div>
+
+    <div class="app-container">
+        <!-- Home Screen -->
+        <div class="screen active" id="homeScreen">
+            <div class="header">
+                <div class="header-title">📝 Quick Notes</div>
+                <div class="header-icon">⚙️</div>
+            </div>
+            <div style="padding: 16px;">
+                <h3 style="margin-bottom: 12px;">Recent Notes</h3>
+                <div class="note-card" onclick="showScreen('editorScreen')">
+                    <strong>📝 Meeting Notes</strong>
+                    <p style="font-size: 14px; color: #8E8E93;">Discussion about project timeline...</p>
+                </div>
+            </div>
+            <button class="fab" onclick="showCreateModal()">+</button>
+        </div>
+
+        <!-- Editor Screen -->
+        <div class="screen" id="editorScreen">
+            <div class="editor-header">
+                <span class="back-btn" onclick="showScreen('homeScreen')">←</span>
+                <input type="text" class="title-input" placeholder="Untitled Note" id="noteTitle">
+                <span class="save-btn" onclick="saveNote()">Save</span>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" id="textTab" onclick="switchTab('text')">📝 Text</div>
+                <div class="tab" id="drawingTab" onclick="switchTab('drawing')">🎨 Drawing</div>
+            </div>
+
+            <div class="text-editor" id="textEditor">
+                <textarea placeholder="Start typing your note..." id="noteContent"></textarea>
+            </div>
+
+            <div class="drawing-area" id="drawingEditor" style="display: none;">
+                <div class="canvas-container">
+                    <div class="canvas-placeholder">🎨</div>
+                    <div class="canvas-text">Drawing canvas (Skia integration pending)</div>
+                </div>
+
+                <div class="tools-bar">
+                    <div class="tools-section">
+                        <span class="tools-label">Tool:</span>
+                        <button class="tool-btn active" id="penBtn" onclick="selectTool('pen')">✏️</button>
+                        <button class="tool-btn" id="eraserBtn" onclick="selectTool('eraser')">🧹</button>
+                    </div>
+                    <div class="tools-section">
+                        <span class="tools-label">Color:</span>
+                        <div style="display: flex;">
+                            <button class="color-btn active" style="background: #000;" onclick="selectColor('#000')"></button>
+                            <button class="color-btn" style="background: #FF3B30;" onclick="selectColor('#FF3B30')"></button>
+                            <button class="color-btn" style="background: #007AFF;" onclick="selectColor('#007AFF')"></button>
+                            <button class="color-btn" style="background: #34C759;" onclick="selectColor('#34C759')"></button>
+                            <button class="color-btn" style="background: #FFCC00;" onclick="selectColor('#FFCC00')"></button>
+                        </div>
+                    </div>
+                    <button class="clear-btn" onclick="clearCanvas()">Clear Canvas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Options Modal -->
+    <div class="modal" id="createModal">
+        <div class="modal-content">
+            <div class="modal-title">What would you like to create?</div>
+            
+            <div class="modal-option" onclick="handleCreate('note')">
+                <div class="modal-icon" style="background: #007AFF;">📝</div>
+                <div class="modal-text">
+                    <h4>New Note</h4>
+                    <p>Create a note with text and drawings</p>
+                </div>
+            </div>
+
+            <div class="modal-option" onclick="handleCreate('notebook')">
+                <div class="modal-icon" style="background: #34C759;">📁</div>
+                <div class="modal-text">
+                    <h4>New Notebook</h4>
+                    <p>Organize notes in a notebook</p>
+                </div>
+            </div>
+
+            <div class="modal-option" onclick="handleCreate('sub-notebook')">
+                <div class="modal-icon" style="background: #FF9500;">📂</div>
+                <div class="modal-text">
+                    <h4>New Sub-Notebook</h4>
+                    <p>Create a notebook inside another</p>
+                </div>
+            </div>
+
+            <button class="cancel-btn" onclick="hideCreateModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Location Picker Modal -->
+    <div class="modal" id="locationModal">
+        <div class="modal-content">
+            <div class="modal-title">Select Location</div>
+            
+            <div class="modal-option" onclick="selectLocation('root')">
+                <div class="modal-icon" style="background: #8E8E93;">📁</div>
+                <div class="modal-text">
+                    <h4>No Notebook (Root)</h4>
+                </div>
+            </div>
+
+            <div class="modal-option" onclick="selectLocation('personal')">
+                <div class="modal-icon" style="background: #007AFF;">📝</div>
+                <div class="modal-text">
+                    <h4>Personal</h4>
+                </div>
+            </div>
+
+            <div class="modal-option" onclick="selectLocation('work')" style="margin-left: 20px;">
+                <div class="modal-icon" style="background: #34C759;">💼</div>
+                <div class="modal-text">
+                    <h4>Work</h4>
+                </div>
+            </div>
+
+            <button class="cancel-btn" onclick="hideLocationModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="success-msg" id="successMsg"></div>
+
+    <script>
+        let currentTool = 'pen';
+        let currentColor = '#000';
+        let createAction = null;
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            document.getElementById('currentScreen').textContent = 
+                screenId === 'homeScreen' ? 'Home' : 'Editor';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'text') {
+                document.getElementById('textTab').classList.add('active');
+                document.getElementById('textEditor').style.display = 'block';
+                document.getElementById('drawingEditor').style.display = 'none';
+            } else {
+                document.getElementById('drawingTab').classList.add('active');
+                document.getElementById('textEditor').style.display = 'none';
+                document.getElementById('drawingEditor').style.display = 'flex';
+            }
+        }
+
+        function selectTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tool + 'Btn').classList.add('active');
+        }
+
+        function selectColor(color) {
+            currentColor = color;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function clearCanvas() {
+            showMessage('Canvas cleared!');
+        }
+
+        function saveNote() {
+            const title = document.getElementById('noteTitle').value || 'Untitled';
+            showMessage(`✅ "${title}" saved successfully!`);
+        }
+
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function hideCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+        }
+
+        function showLocationModal() {
+            document.getElementById('locationModal').classList.add('active');
+        }
+
+        function hideLocationModal() {
+            document.getElementById('locationModal').classList.remove('active');
+        }
+
+        function handleCreate(action) {
+            createAction = action;
+            hideCreateModal();
+            
+            if (action === 'note' || action === 'sub-notebook') {
+                showLocationModal();
+            } else if (action === 'notebook') {
+                const name = prompt('Enter notebook name:');
+                if (name) showMessage(`✅ Notebook "${name}" created!`);
+            }
+        }
+
+        function selectLocation(location) {
+            hideLocationModal();
+            if (createAction === 'note') {
+                showScreen('editorScreen');
+                showMessage(`✅ Note created in ${location === 'root' ? 'root' : location}`);
+            } else if (createAction === 'sub-notebook') {
+                const name = prompt('Enter sub-notebook name:');
+                if (name) showMessage(`✅ Sub-notebook "${name}" created in ${location}`);
+            }
+        }
+
+        function showMessage(msg) {
+            const msgEl = document.getElementById('successMsg');
+            msgEl.textContent = msg;
+            msgEl.classList.add('show');
+            setTimeout(() => msgEl.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

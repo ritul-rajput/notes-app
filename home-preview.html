@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes - Home Screen Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #F2F2F7;
+            color: #000000;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E5E5EA;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin: 16px 24px;
+            padding: 8px 16px;
+            background-color: #F2F2F7;
+            border-radius: 8px;
+        }
+
+        .search-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .clear-icon {
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .section {
+            margin-top: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            padding: 0 24px;
+            margin-bottom: 8px;
+        }
+
+        .add-button {
+            color: #007AFF;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .note-card {
+            background: #FFFFFF;
+            margin: 4px 24px;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .note-header-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .note-icon {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .note-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .note-badges {
+            display: flex;
+            gap: 4px;
+        }
+
+        .note-content {
+            font-size: 14px;
+            color: #8E8E93;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: #8E8E93;
+        }
+
+        .ocr-badge {
+            background-color: #34C759;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .notebook-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            margin: 4px 24px;
+            background-color: #F2F2F7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .notebook-item:hover {
+            background-color: #E5E5EA;
+        }
+
+        .expand-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            font-size: 12px;
+            color: #8E8E93;
+        }
+
+        .notebook-icon-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .notebook-icon {
+            font-size: 20px;
+        }
+
+        .notebook-info {
+            flex: 1;
+        }
+
+        .notebook-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .notebook-count {
+            font-size: 12px;
+            color: #8E8E93;
+        }
+
+        .chevron {
+            font-size: 20px;
+            font-weight: 300;
+            color: #8E8E93;
+        }
+
+        .fab {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background-color: #007AFF;
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .create-menu {
+            position: fixed;
+            right: 24px;
+            bottom: 94px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .create-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+
+        .create-menu-item:hover {
+            transform: translateX(-5px);
+        }
+
+        .create-menu-icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        .drawing-preview {
+            height: 60px;
+            background-color: #F2F2F7;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+            color: #8E8E93;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-text {
+            text-align: center;
+            padding: 32px;
+            color: #8E8E93;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #000000;
+                color: #FFFFFF;
+            }
+            .container, .header {
+                background-color: #000000;
+            }
+            .search-container, .notebook-item {
+                background-color: #1C1C1E;
+            }
+            .note-card {
+                background-color: #1C1C1E;
+            }
+            .drawing-preview {
+                background-color: #2C2C2E;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">📝 Quick Notes</div>
+            <div class="header-icon" onclick="alert('Settings')">⚙️</div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search notes (including OCR text)..."
+                id="searchInput"
+                oninput="handleSearch()"
+            >
+            <span class="clear-icon hidden" id="clearBtn" onclick="clearSearch()">✕</span>
+        </div>
+
+        <!-- Content -->
+        <div id="mainContent">
+            <!-- Recent Notes -->
+            <div class="section">
+                <div class="section-title">Recent Notes</div>
+                
+                <div class="note-card" onclick="alert('Note: Today\'s Thoughts')">
+                    <div class="note-header">
+                        <div class="note-header-left">
+                            <span class="note-icon">📝</span>
+                            <span class="note-title">Today's Thoughts</span>
+                        </div>
+                        <div class="note-badges">
+                            <span>📌</span>
+                        </div>
+                    </div>
+                    <div class="note-content">Had a great day today. Need to remember to...</div>
+                    <div class="note-footer">
+                        <span class="note-date">10m ago</span>
+                    </div>
+                </div>
+
+                <div class="note-card" onclick="alert('Drawing: App Design Ideas')">
+                    <div class="note-header">
+                        <div class="note-header-left">
+                            <span class="note-icon">🎨</span>
+                            <span class="note-title">App Design Ideas</span>
+                        </div>
+                    </div>
+                    <div class="drawing-preview">✏️ Drawing note</div>
+                    <div class="note-footer">
+                        <span class="note-date">1h ago</span>
+                    </div>
+                </div>
+
+                <div class="note-card" onclick="alert('Note: Team Standup')">
+                    <div class="note-header">
+                        <div class="note-header-left">
+                            <span class="note-icon">📝</span>
+                            <span class="note-title">Team Standup Notes</span>
+                        </div>
+                    </div>
+                    <div class="note-content">Discussed project timeline and milestones...</div>
+                    <div class="note-footer">
+                        <span class="note-date">2d ago</span>
+                        <span class="ocr-badge">OCR</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notebooks -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title" style="padding: 0;">Notebooks</div>
+                    <div class="add-button" onclick="alert('Create new notebook')">+ New</div>
+                </div>
+
+                <div class="notebook-item" onclick="toggleNotebook('personal')">
+                    <div class="expand-btn" id="expand-personal">▶</div>
+                    <div class="notebook-icon-container" style="background-color: #007AFF;">
+                        <span class="notebook-icon">📝</span>
+                    </div>
+                    <div class="notebook-info">
+                        <div class="notebook-name">Personal</div>
+                        <div class="notebook-count">3 notes • 2 notebooks</div>
+                    </div>
+                    <div class="chevron">›</div>
+                </div>
+
+                <div id="personal-children" class="hidden" style="margin-left: 20px;">
+                    <div class="notebook-item">
+                        <div class="notebook-icon-container" style="background-color: #5856D6;">
+                            <span class="notebook-icon">📔</span>
+                        </div>
+                        <div class="notebook-info">
+                            <div class="notebook-name">Daily Journal</div>
+                            <div class="notebook-count">2 notes</div>
+                        </div>
+                        <div class="chevron">›</div>
+                    </div>
+
+                    <div class="notebook-item">
+                        <div class="notebook-icon-container" style="background-color: #FF9500;">
+                            <span class="notebook-icon">💡</span>
+                        </div>
+                        <div class="notebook-info">
+                            <div class="notebook-name">Ideas</div>
+                            <div class="notebook-count">1 note</div>
+                        </div>
+                        <div class="chevron">›</div>
+                    </div>
+                </div>
+
+                <div class="notebook-item" onclick="toggleNotebook('work')">
+                    <div class="expand-btn" id="expand-work">▶</div>
+                    <div class="notebook-icon-container" style="background-color: #34C759;">
+                        <span class="notebook-icon">💼</span>
+                    </div>
+                    <div class="notebook-info">
+                        <div class="notebook-name">Work</div>
+                        <div class="notebook-count">5 notes • 1 notebook</div>
+                    </div>
+                    <div class="chevron">›</div>
+                </div>
+
+                <div id="work-children" class="hidden" style="margin-left: 20px;">
+                    <div class="notebook-item">
+                        <div class="notebook-icon-container" style="background-color: #FF3B30;">
+                            <span class="notebook-icon">🗓️</span>
+                        </div>
+                        <div class="notebook-info">
+                            <div class="notebook-name">Meetings</div>
+                            <div class="notebook-count">3 notes</div>
+                        </div>
+                        <div class="chevron">›</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results (hidden by default) -->
+        <div id="searchResults" class="hidden">
+            <div class="section">
+                <div class="section-title">Search Results (<span id="resultCount">0</span>)</div>
+                <div id="resultsContainer"></div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <div class="fab" id="fab" onclick="toggleCreateMenu()">+</div>
+
+        <!-- Create Menu (hidden by default) -->
+        <div class="create-menu hidden" id="createMenu">
+            <div class="create-menu-item" style="background-color: #007AFF;" onclick="createNote()">
+                <span class="create-menu-icon">📝</span>
+                <span>Text Note</span>
+            </div>
+            <div class="create-menu-item" style="background-color: #5856D6;" onclick="createDrawing()">
+                <span class="create-menu-icon">🎨</span>
+                <span>Drawing</span>
+            </div>
+            <div class="create-menu-item" style="background-color: #34C759;" onclick="createNotebook()">
+                <span class="create-menu-icon">📁</span>
+                <span>Notebook</span>
+            </div>
+            <div class="fab" style="background-color: #FF3B30; position: static;" onclick="toggleCreateMenu()">✕</div>
+        </div>
+    </div>
+
+    <script>
+        let menuOpen = false;
+
+        function toggleCreateMenu() {
+            menuOpen = !menuOpen;
+            const menu = document.getElementById('createMenu');
+            const fab = document.getElementById('fab');
+            
+            if (menuOpen) {
+                menu.classList.remove('hidden');
+                fab.classList.add('hidden');
+            } else {
+                menu.classList.add('hidden');
+                fab.classList.remove('hidden');
+            }
+        }
+
+        function createNote() {
+            alert('✅ New text note created!');
+            toggleCreateMenu();
+        }
+
+        function createDrawing() {
+            alert('✅ New drawing created! (Drawing canvas would open)');
+            toggleCreateMenu();
+        }
+
+        function createNotebook() {
+            alert('✅ Create notebook dialog would open here');
+            toggleCreateMenu();
+        }
+
+        function toggleNotebook(id) {
+            const children = document.getElementById(id + '-children');
+            const expandBtn = document.getElementById('expand-' + id);
+            
+            if (children.classList.contains('hidden')) {
+                children.classList.remove('hidden');
+                expandBtn.textContent = '▼';
+            } else {
+                children.classList.add('hidden');
+                expandBtn.textContent = '▶';
+            }
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.trim();
+            const clearBtn = document.getElementById('clearBtn');
+            const mainContent = document.getElementById('mainContent');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (query) {
+                clearBtn.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+                searchResults.classList.remove('hidden');
+                performSearch(query);
+            } else {
+                clearBtn.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                searchResults.classList.add('hidden');
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearch();
+        }
+
+        function performSearch(query) {
+            // Mock search results
+            const allNotes = [
+                { title: "Today's Thoughts", content: "Had a great day today...", type: "📝", time: "10m ago" },
+                { title: "Team Standup Notes", content: "Discussed project timeline...", type: "📝", time: "2d ago", hasOCR: true },
+                { title: "Quick Note", content: "Remember to buy groceries", type: "📝", time: "3d ago" },
+            ];
+
+            const results = allNotes.filter(note => 
+                note.title.toLowerCase().includes(query.toLowerCase()) ||
+                note.content.toLowerCase().includes(query.toLowerCase())
+            );
+
+            document.getElementById('resultCount').textContent = results.length;
+            const container = document.getElementById('resultsContainer');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div class="empty-text">No notes found for "' + query + '"</div>';
+            } else {
+                container.innerHTML = results.map(note => `
+                    <div class="note-card" onclick="alert('${note.title}')">
+                        <div class="note-header">
+                            <div class="note-header-left">
+                                <span class="note-icon">${note.type}</span>
+                                <span class="note-title">${note.title}</span>
+                            </div>
+                        </div>
+                        <div class="note-content">${note.content}</div>
+                        <div class="note-footer">
+                            <span class="note-date">${note.time}</span>
+                            ${note.hasOCR ? '<span class="ocr-badge">OCR</span>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>
