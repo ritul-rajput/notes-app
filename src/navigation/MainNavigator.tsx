@@ -3,6 +3,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useNavigation } from '../context/NavigationContext';
 import { LoginScreen } from '../screens/auth/LoginScreen';
+import { SignUpScreen } from '../screens/auth/SignUpScreen';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { AppleNotesStyleScreen } from '../screens/editor/AppleNotesStyleScreen';
 
@@ -19,8 +20,11 @@ export const MainNavigator: React.FC = () => {
     );
   }
 
-  // If not authenticated, always show login
+  // If not authenticated, show login or signup
   if (!isAuthenticated) {
+    if (currentScreen === 'signup') {
+      return <SignUpScreen />;
+    }
     return <LoginScreen />;
   }
 
@@ -28,6 +32,8 @@ export const MainNavigator: React.FC = () => {
   switch (currentScreen) {
     case 'login':
       return <LoginScreen />;
+    case 'signup':
+      return <SignUpScreen />;
     case 'home':
       return <HomeScreen />;
     case 'editor':

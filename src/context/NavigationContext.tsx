@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type Screen = 'login' | 'home' | 'editor';
+type Screen = 'login' | 'signup' | 'home' | 'editor';
 
 interface Note {
   id: string;

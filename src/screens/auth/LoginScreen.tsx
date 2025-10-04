@@ -84,8 +84,7 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleSignUp = () => {
-    // TODO: Navigate to sign up screen
-    Alert.alert('Sign Up', 'This feature will be implemented soon');
+    navigateTo('signup');
   };
 
   const isFormValid = validateEmail(email) && validatePassword(password);
